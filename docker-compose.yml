@@ -1,0 +1,54 @@
+# docker-compose.yml
+
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+
+  api:
+    build:
+      context: ./api
+      dockerfile: ./Dockerfile
+    container_name: fraud-api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - kafka
+
+  producer:
+    build:
+      context: ./producer
+    container_name: kafka-producer
+    depends_on:
+      - kafka
+    environment:
+      - KAFKA_BROKER=kafka:9092
+    command: ["python", "producer.py"]
+
+  spark-processor:
+    build:
+      context: ./processor
+    container_name: spark-processor
+    depends_on:
+      - kafka
+      - api
+    environment:
+      - KAFKA_BROKER=kafka:9092
+    command: ["python", "spark_job.py"]
+
+networks:
+  default:
+    driver: bridge
