@@ -15,6 +15,11 @@ It simulates real-time transactions via **Kafka**, scores them using a **FastAPI
 
 ---
 
+### Dataset Link
+[Credit Card Fraud Dataset](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud)
+
+---
+
 ## 🧱 Tech Stack
 
 - Python, Pandas, NumPy
